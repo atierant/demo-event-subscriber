@@ -16,7 +16,6 @@ env:
 matrix:
   fast_finish: true
   include:
-    - php: 7.1.18
     - php: 7.2
     - php: 7.3
     # 'php: nightly' is PHP 8.0
