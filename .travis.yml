@@ -49,7 +49,6 @@ install:
   - php -r "echo ini_get('memory_limit').PHP_EOL;"
   # install or update
   - composer $ACTION
-  - ./bin/phpunit install
 
 script:
   - ./vendor/bin/simple-phpunit
