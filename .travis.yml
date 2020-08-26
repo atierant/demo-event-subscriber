@@ -1,5 +1,4 @@
 language: php
-sudo: true
 
 cache:
   yarn: true
@@ -55,21 +54,21 @@ install:
   - php -r "echo ini_get('memory_limit').PHP_EOL;"
   # Install or update Composer packages including dev dependencies listed in require-dev.
   - COMPOSER_MEMORY_LIMIT=-1 composer $ACTION
-  - ./bin/phpunit install
+  - php ./bin/phpunit install
 
 script:
-  - ./bin/phpunit
+  - php ./bin/phpunit
   # this checks that the source code follows the Symfony Code Syntax rules
-  - '[[ "$TRAVIS_PHP_VERSION" != "7.4" ]] || ./vendor/bin/php-cs-fixer fix --diff --dry-run -v'
+  - '[[ "$TRAVIS_PHP_VERSION" != "7.4" ]] || php ./vendor/bin/php-cs-fixer fix --diff --dry-run -v'
   # this checks that the YAML config files contain no syntax errors
-  - ./bin/console lint:yaml config --parse-tags
+  - php ./bin/console lint:yaml config --parse-tags
   # this checks that the Twig template files contain no syntax errors
-  - ./bin/console lint:twig templates --env=prod
+  - php ./bin/console lint:twig templates --env=prod
   # this checks that the XLIFF translations contain no syntax errors
-  - ./bin/console lint:xliff translations
+  - php ./bin/console lint:xliff translations
   # this checks that the application doesn't use dependencies with known security vulnerabilities
   - symfony check:security
   # this checks that Doctrine's mapping configurations are valid
-  - ./bin/console doctrine:schema:validate --skip-sync -vvv --no-interaction
+  - php ./bin/console doctrine:schema:validate --skip-sync -vvv --no-interaction
   #  Fail CI if the repo is in a dirty state after building assets (only for current release ie install)
   -  if [[ "$ACTION" == "install" ]]; then yarn install && yarn encore production && git add --all && git diff --staged --exit-code; fi
