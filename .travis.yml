@@ -5,11 +5,11 @@ cache:
   yarn: true
   directories:
     - $HOME/.composer/cache/files
-    - ./bin/.phpunit
+    - ./bin/phpunit
 
 env:
   global:
-    - SYMFONY_PHPUNIT_DIR=./bin/.phpunit
+    - SYMFONY_PHPUNIT_DIR=./bin/phpunit
     - SYMFONY_DEPRECATIONS_HELPER=29
     - ACTION="install"
 
