@@ -3,3 +3,9 @@ fileignoreconfig:
   checksum: 4c1913b2a1dd5631a38ca81c22b563c19c0c2af65eedbf56b88be709068dae6e
 - filename: yarn.lock
   checksum: ff99b164445ad97c789dab2f59a141771785d15178ed0a18c3c2f902f4d0e7e4
+- filename: symfony.lock
+  checksum: fb4287d0fe0ad508e19bd588a70d2384897578f8057de9affaacb6546bcb85ec
+- filename: composer.lock
+  checksum: b4ab6be3c7554600c1f800a369b08d2e2506dc1442ef9c035a3ceab2d0b2c841
+- filename: yarn.lock
+  checksum: 19c62a35e3ce46fabc44db4c5bd7487e4939b504301a1103a3b5ac473e60181f

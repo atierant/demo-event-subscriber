@@ -2,7 +2,7 @@ import '../scss/admin.scss';
 import 'eonasdan-bootstrap-datetimepicker';
 import 'typeahead.js';
 import Bloodhound from "bloodhound-js";
-import 'bootstrap-tagsinput';
+//import 'bootstrap-tagsinput';
 
 $(function() {
     // Datetime picker initialization.
@@ -32,14 +32,14 @@ $(function() {
         });
         source.initialize();
 
-        $input.tagsinput({
-            trimValue: true,
-            focusClass: 'focus',
-            typeaheadjs: {
-                name: 'tags',
-                source: source.ttAdapter()
-            }
-        });
+//        $input.tagsinput({
+//            trimValue: true,
+//            focusClass: 'focus',
+//            typeaheadjs: {
+//                name: 'tags',
+//                source: source.ttAdapter()
+//            }
+//        });
     }
 });
 
