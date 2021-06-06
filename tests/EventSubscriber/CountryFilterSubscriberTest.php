@@ -45,7 +45,7 @@ class CountryFilterSubscriberTest extends TestCase
     /**
      *
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->subscriber = new CountryFilterSubscriber(
             $this->createMock(EntityManagerInterface::class),
