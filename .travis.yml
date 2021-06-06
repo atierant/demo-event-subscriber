@@ -52,7 +52,7 @@ install:
   - php -r "echo ini_get('memory_limit').PHP_EOL;"
   # Install or update Composer packages including dev dependencies listed in require-dev.
   - COMPOSER_MEMORY_LIMIT=-1 composer $ACTION
-  - php ./vendor/bin/phpunit install
+  #- php ./vendor/bin/phpunit install
 
 script:
   - php ./vendor/bin/phpunit
