@@ -15,18 +15,21 @@ use App\Entity\Comment;
 use App\Entity\Post;
 use App\Entity\Tag;
 use App\Entity\User;
-use App\Utils\Slugger;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\Persistence\ObjectManager;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
+use function Symfony\Component\String\u;
 
 class AppFixtures extends Fixture
 {
-    private $passwordEncoder;
+    private $passwordHasher;
+    private $slugger;
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(UserPasswordHasherInterface $passwordHasher, SluggerInterface $slugger)
     {
-        $this->passwordEncoder = $passwordEncoder;
+        $this->passwordHasher = $passwordHasher;
+        $this->slugger = $slugger;
     }
 
     public function load(ObjectManager $manager): void
@@ -38,13 +41,12 @@ class AppFixtures extends Fixture
 
     private function loadUsers(ObjectManager $manager): void
     {
-        foreach ($this->getUserData() as [$fullname, $username, $password, $email, $roles, $country]) {
+        foreach ($this->getUserData() as [$fullname, $username, $password, $email, $roles]) {
             $user = new User();
             $user->setFullName($fullname);
             $user->setUsername($username);
-            $user->setPassword($this->passwordEncoder->encodePassword($user, $password));
+            $user->setPassword($this->passwordHasher->hashPassword($user, $password));
             $user->setEmail($email);
-            $user->setCountry($country);
             $user->setRoles($roles);
 
             $manager->persist($user);
@@ -69,7 +71,7 @@ class AppFixtures extends Fixture
 
     private function loadPosts(ObjectManager $manager): void
     {
-        foreach ($this->getPostData() as [$title, $slug, $summary, $content, $publishedAt, $author, $tags, $country]) {
+        foreach ($this->getPostData() as [$title, $slug, $summary, $content, $publishedAt, $author, $tags]) {
             $post = new Post();
             $post->setTitle($title);
             $post->setSlug($slug);
@@ -78,7 +80,6 @@ class AppFixtures extends Fixture
             $post->setPublishedAt($publishedAt);
             $post->setAuthor($author);
             $post->addTag(...$tags);
-            $post->setCountry($country);
 
             foreach (range(1, 5) as $i) {
                 $comment = new Comment();
@@ -99,12 +100,9 @@ class AppFixtures extends Fixture
     {
         return [
             // $userData = [$fullname, $username, $password, $email, $roles];
-            ['Jane Doe', 'jane_admin', 'kitten', 'jane_admin@symfony.com', ['ROLE_ADMIN'], 'UK'],
-            ['Tom Doe', 'tom_admin', 'kitten', 'tom_admin@symfony.com', ['ROLE_ADMIN'], 'UK'],
-            ['John Doe', 'john_user', 'kitten', 'john_user@symfony.com', ['ROLE_USER'], 'UK'],
-            ['User 1', 'user_1', 'kitten', 'user_1@symfony.com', ['ROLE_USER'], 'FR'],
-            ['User 2', 'user_2', 'kitten', 'user_2@symfony.com', ['ROLE_USER'], 'UK'],
-            ['User 3', 'user_3', 'kitten', 'user_3@symfony.com', ['ROLE_USER', 'ROLE_INTERNATIONAL'], 'UK'],
+            ['Jane Doe', 'jane_admin', 'kitten', 'jane_admin@symfony.com', ['ROLE_ADMIN']],
+            ['Tom Doe', 'tom_admin', 'kitten', 'tom_admin@symfony.com', ['ROLE_ADMIN']],
+            ['John Doe', 'john_user', 'kitten', 'john_user@symfony.com', ['ROLE_USER']],
         ];
     }
 
@@ -127,17 +125,16 @@ class AppFixtures extends Fixture
     {
         $posts = [];
         foreach ($this->getPhrases() as $i => $title) {
-            // $postData = [$title, $slug, $summary, $content, $publishedAt, $author, $tags, $comments, $country];
+            // $postData = [$title, $slug, $summary, $content, $publishedAt, $author, $tags, $comments];
             $posts[] = [
                 $title,
-                Slugger::slugify($title),
+                $this->slugger->slug($title)->lower(),
                 $this->getRandomText(),
                 $this->getPostContent(),
                 new \DateTime('now - '.$i.'days'),
                 // Ensure that the first post is written by Jane Doe to simplify tests
                 $this->getReference(['jane_admin', 'tom_admin'][0 === $i ? 0 : random_int(0, 1)]),
                 $this->getRandomTags(),
-                'UK'
             ];
         }
 
@@ -185,9 +182,10 @@ class AppFixtures extends Fixture
         $phrases = $this->getPhrases();
         shuffle($phrases);
 
-        while (mb_strlen($text = implode('. ', $phrases).'.') > $maxLength) {
+        do {
+            $text = u('. ')->join($phrases)->append('.');
             array_pop($phrases);
-        }
+        } while ($text->length() > $maxLength);
 
         return $text;
     }

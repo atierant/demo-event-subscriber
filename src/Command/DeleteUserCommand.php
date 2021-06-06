@@ -30,12 +30,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  *     $ php bin/console app:delete-user
  *
- * Check out the code of the src/App/Command/AddUserCommand.php file for
+ * Check out the code of the src/Command/AddUserCommand.php file for
  * the full explanation about Symfony commands.
  *
  * See https://symfony.com/doc/current/console.html
- * For more advanced uses, commands can be defined as services too. See
- * https://symfony.com/doc/current/console/commands_as_services.html
  *
  * @author Oleg Voronkovich <oleg-voronkovich@yandex.ru>
  */
@@ -108,7 +106,7 @@ HELP
         $input->setArgument('username', $username);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $username = $this->validator->validateUsername($input->getArgument('username'));
 
@@ -128,5 +126,7 @@ HELP
         $this->entityManager->flush();
 
         $this->io->success(sprintf('User "%s" (ID: %d, email: %s) was successfully deleted.', $user->getUsername(), $userId, $user->getEmail()));
+
+        return Command::SUCCESS;
     }
 }
