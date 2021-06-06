@@ -9,3 +9,5 @@ fileignoreconfig:
   checksum: b4ab6be3c7554600c1f800a369b08d2e2506dc1442ef9c035a3ceab2d0b2c841
 - filename: yarn.lock
   checksum: 19c62a35e3ce46fabc44db4c5bd7487e4939b504301a1103a3b5ac473e60181f
+- filename: composer.lock
+  checksum: 30b7db222f36864cbec8792bf568f0d61a460403a2c9a928dbd13b12d0349c61

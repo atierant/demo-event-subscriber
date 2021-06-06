@@ -12,7 +12,7 @@ cache:
 
 env:
   global:
-    - SYMFONY_PHPUNIT_DIR=./bin/.phpunit
+    - SYMFONY_PHPUNIT_DIR=./vendor/bin/phpunit
     - SYMFONY_DEPRECATIONS_HELPER=29
     - ACTION="install"
     # Add the Symfony binary's path to PATH.
