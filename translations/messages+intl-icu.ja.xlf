@@ -113,6 +113,10 @@
                 <source>label.title</source>
                 <target>タイトル</target>
             </trans-unit>
+            <trans-unit id="action.close">
+                <source>action.close</source>
+                <target>閉じる</target>
+            </trans-unit>
             <trans-unit id="label.author">
                 <source>label.author</source>
                 <target>投稿者</target>
@@ -276,6 +280,15 @@
             <trans-unit id="help.more_information">
                 <source>help.more_information</source>
                 <target><![CDATA[さらに詳しく知りたい場合は, <a href="https://symfony.com/doc">Symfony doc</a>を参照してください。]]></target>
+            </trans-unit>
+
+            <trans-unit id="paginator.previous">
+                <source>paginator.previous</source>
+                <target>前へ</target>
+            </trans-unit>
+            <trans-unit id="paginator.next">
+                <source>paginator.next</source>
+                <target>次へ</target>
             </trans-unit>
         </body>
     </file>

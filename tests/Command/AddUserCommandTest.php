@@ -88,7 +88,7 @@ class AddUserCommandTest extends KernelTestCase
      * This helper method checks that the user was correctly created and saved
      * in the database.
      */
-    private function assertUserCreated(bool $isAdmin)
+    private function assertUserCreated(bool $isAdmin): void
     {
         /** @var \App\Entity\User $user */
         $user = $this->getContainer()->get(UserRepository::class)->findOneByEmail($this->userData['email']);

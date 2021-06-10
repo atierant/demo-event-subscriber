@@ -190,6 +190,10 @@
                 <source>label.title</source>
                 <target>Titre</target>
             </trans-unit>
+            <trans-unit id="action.close">
+                <source>action.close</source>
+                <target>Fermer</target>
+            </trans-unit>
             <trans-unit id="label.author">
                 <source>label.author</source>
                 <target>Auteur</target>
@@ -424,6 +428,15 @@
             <trans-unit id="rss.description">
                 <source>rss.description</source>
                 <target>Derniers articles publiés sur le blog de démo Symfony</target>
+            </trans-unit>
+
+            <trans-unit id="paginator.previous">
+                <source>paginator.previous</source>
+                <target>Précédent</target>
+            </trans-unit>
+            <trans-unit id="paginator.next">
+                <source>paginator.next</source>
+                <target>Suivant</target>
             </trans-unit>
         </body>
     </file>

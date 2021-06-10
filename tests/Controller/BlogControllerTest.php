@@ -41,7 +41,7 @@ class BlogControllerTest extends WebTestCase
         );
     }
 
-    public function testRss()
+    public function testRss(): void
     {
         $client = static::createClient();
         $crawler = $client->request('GET', '/en/blog/rss.xml');
@@ -71,6 +71,7 @@ class BlogControllerTest extends WebTestCase
 
         // Find first blog post
         $crawler = $client->request('GET', '/en/blog/');
+        dump($client->getResponse()->getContent());
         $postLink = $crawler->filter('article.post > h2 a')->link();
 
         $client->click($postLink);

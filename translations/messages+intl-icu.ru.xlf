@@ -190,6 +190,10 @@
                 <source>label.title</source>
                 <target>Название</target>
             </trans-unit>
+            <trans-unit id="action.close">
+                <source>action.close</source>
+                <target>Закрыть</target>
+            </trans-unit>
             <trans-unit id="label.author">
                 <source>label.author</source>
                 <target>Автор</target>
@@ -424,6 +428,19 @@
             <trans-unit id="rss.description">
                 <source>rss.description</source>
                 <target>Самые последние записи, опубликованные в Symfony Demo блоге</target>
+            </trans-unit>
+
+            <trans-unit id="paginator.previous">
+                <source>paginator.previous</source>
+                <target>Назад</target>
+            </trans-unit>
+            <trans-unit id="paginator.next">
+                <source>paginator.next</source>
+                <target>Вперед</target>
+            </trans-unit>
+            <trans-unit id="paginator.current">
+                <source>paginator.current</source>
+                <target>(текущая)</target>
             </trans-unit>
         </body>
     </file>
