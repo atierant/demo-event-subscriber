@@ -51,7 +51,7 @@ class CountryFilter extends SQLFilter
         try {
             // Parameter name given in the subscriber
             $country = $this->getParameter('country');
-//            $country = trim($country, "'");
+            $country = trim($country, "'");
         } catch (InvalidArgumentException $e) {
             // No treatment_site_id has been defined
             return '';

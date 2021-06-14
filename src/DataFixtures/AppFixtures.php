@@ -80,6 +80,7 @@ class AppFixtures extends Fixture
             $post->setPublishedAt($publishedAt);
             $post->setAuthor($author);
             $post->addTag(...$tags);
+            $post->setCountry('en');
 
             foreach (range(1, 5) as $i) {
                 $comment = new Comment();
