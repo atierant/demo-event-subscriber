@@ -4,6 +4,6 @@ fileignoreconfig:
 - filename: .env.test
   checksum: 11249deb50a6bc29232476c7cedc331e4aa6eab8513a54e3417c5277fe168790
 - filename: composer.lock
-  checksum: b16366c5227eaa6fadb4320d66838463bb9ce05bf33dba1576eec91ac92fc348
+  checksum: 67b148fc99b6c0b1d4013cce1f229479690adb484efdabc702d8bdcececa3972
 - filename: yarn.lock
-  checksum: f9b57a3091c74e0b28375e6b75338e6fe414054f238f8f57ce0a09c9db7b10f7
+  checksum: 6efa83ea0eada9939be8d977631a45607f5d03223d2aae9206d043d288175654
