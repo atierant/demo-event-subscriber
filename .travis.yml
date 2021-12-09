@@ -24,18 +24,11 @@ matrix:
     # Run tests with the dependencies from composer.lock
     - php: 7.4
     - php: 7.4
-      env: SYMFONY="4.4.*"
-           ACTION="update"
-    - php: 7.4
-      env: SYMFONY="5.0.*"
+      env: SYMFONY="5.4.*"
            ACTION="update"
   allow_failures:
     - php: 7.4
-    - php: 7.4
-      env: SYMFONY="4.4.*"
-           ACTION="update"
-    - php: 7.4
-      env: SYMFONY="5.0.*"
+      env: SYMFONY="5.4.*"
            ACTION="update"
 
 before_install:
