@@ -11,8 +11,9 @@
 
 namespace App\Tests\Controller;
 
-use App\Entity\Post;
+use App\Entity\User;
 use App\Pagination\Paginator;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
@@ -25,7 +26,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  *     $ cd your-symfony-project/
  *     $ ./vendor/bin/phpunit
  */
-class BlogControllerTest extends WebTestCase
+final class BlogControllerTest extends WebTestCase
 {
     public function testIndex(): void
     {
@@ -39,6 +40,10 @@ class BlogControllerTest extends WebTestCase
             $crawler->filter('article.post'),
             'The homepage displays the right number of posts.'
         );
+
+        $crawler = $client->request('GET', '/en/blog/?tag=lorem');
+
+        $this->assertResponseIsSuccessful();
     }
 
     public function testRss(): void
@@ -63,16 +68,21 @@ class BlogControllerTest extends WebTestCase
      */
     public function testNewComment(): void
     {
-        $client = static::createClient([], [
-            'PHP_AUTH_USER' => 'john_user',
-            'PHP_AUTH_PW' => 'kitten',
-        ]);
+        $client = static::createClient();
+
+        /** @var UserRepository $userRepository */
+        $userRepository = $client->getContainer()->get(UserRepository::class);
+
+        /** @var User $user */
+        $user = $userRepository->findOneByUsername('french_admin');
+
+        $client->loginUser($user);
+
         $client->followRedirects();
 
         // Find first blog post
         $crawler = $client->request('GET', '/en/blog/');
         $postLink = $crawler->filter('article.post > h2 a')->link();
-
         $client->click($postLink);
         $crawler = $client->submitForm('Publish comment', [
             'comment[content]' => 'Hi, Symfony!',
@@ -81,18 +91,34 @@ class BlogControllerTest extends WebTestCase
         $newComment = $crawler->filter('.post-comment')->first()->filter('div > p')->text();
 
         $this->assertSame('Hi, Symfony!', $newComment);
+
+        // Find first blog post
+        $crawler = $client->request('GET', '/en/blog/');
+        $postLink = $crawler->filter('article.post > h2 a')->link();
+        $client->click($postLink);
+        // Formulaire invalide
+        $crawler = $client->submitForm('Publish comment');
+        $content = $client->getResponse()->getContent();
+        $content = $content ?: '';
+
+        $this->assertStringContainsStringIgnoringCase('There was an error publishing your comment', $content);
     }
 
     public function testAjaxSearch(): void
     {
         $client = static::createClient();
-        $client->xmlHttpRequest('GET', '/en/blog/search', ['q' => 'lorem']);
+        $crawler = $client->request('GET', '/en/blog/search', ['q' => 'Lorem']);
 
-        $results = json_decode($client->getResponse()->getContent(), true);
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(1, $crawler->filter('article.post'));
+        $this->assertStringContainsStringIgnoringCase(
+            'Lorem ipsum dolor sit amet consectetur adipiscing elit',
+            $crawler->filter('article.post')->first()->filter('h2 > a')->text()
+        );
 
-        $this->assertResponseHeaderSame('Content-Type', 'application/json');
-        $this->assertCount(1, $results);
-        $this->assertSame('Lorem ipsum dolor sit amet consectetur adipiscing elit', $results[0]['title']);
-        $this->assertSame('Jane Doe', $results[0]['author']);
+        $crawler = $client->request('GET', '/en/blog/search', ['q' => null]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertCount(0, $crawler->filter('article.post'));
     }
 }

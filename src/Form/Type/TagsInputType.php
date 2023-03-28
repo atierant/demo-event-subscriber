@@ -28,13 +28,11 @@ use Symfony\Component\Form\FormView;
  *
  * @author Yonel Ceruto <yonelceruto@gmail.com>
  */
-class TagsInputType extends AbstractType
+final class TagsInputType extends AbstractType
 {
-    private $tags;
-
-    public function __construct(TagRepository $tags)
-    {
-        $this->tags = $tags;
+    public function __construct(
+        private readonly TagRepository $tags
+    ) {
     }
 
     /**

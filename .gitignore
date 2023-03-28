@@ -1,6 +1,8 @@
 /public/build/fonts/glyphicons-*
 /public/build/images/glyphicons-*
 
+.php-version
+
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
@@ -31,3 +33,11 @@ npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
 /public/build/
+
+###> squizlabs/php_codesniffer ###
+/.phpcs-cache
+/phpcs.xml
+###< squizlabs/php_codesniffer ###
+/.phpunit.cache/
+/package-lock.json
+/php.ini

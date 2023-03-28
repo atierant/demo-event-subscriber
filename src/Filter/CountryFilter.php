@@ -1,73 +1,92 @@
 <?php
+
 declare(strict_types=1);
+
+/*
+ * This file is part of the Symfony package.
+ *
+ * (c) Fabien Potencier <fabien@symfony.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace App\Filter;
 
-use Doctrine\Common\Annotations\Reader;
+use App\Annotation\CountryCheck;
+use App\Contract\CountryAware;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Filter\SQLFilter;
-use InvalidArgumentException;
 
 /**
- * Class TreatmentSiteContractFilter
+ * Class TreatmentSiteContractFilter.
  *
- * Filtre les contrats par les sites de traitement fournis par le Configurator
+ * Filtre les posts par langue fournie par le Configurator
  *
  * @see http://blog.mthomas.fr/2016/12/07/mettre-en-place-un-filter-avec-doctrine/
  */
 class CountryFilter extends SQLFilter
 {
-    /** @var Reader $reader */
-    protected $reader;
-
     /**
      * Gets the SQL query part to add to a query.
      *
-     * @param ClassMetaData $targetEntity
-     * @param string        $targetTableAlias
+     * @param string $targetTableAlias
      *
-     * @return string The constraint SQL if there is available, empty string otherwise.
+     * @return string the constraint SQL if there is available, empty string otherwise
      */
-    public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias)
+    public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias): string
     {
-        if (empty($this->reader)) {
-            return '';
-        }
-
         // The Doctrine filter is called for any query on any entity
-        // Check if the current entity is marked with an annotation "CountryCheck"
-        $countryCheck = $this->reader->getClassAnnotation(
-            $targetEntity->getReflectionClass(),
-            'App\\Annotation\\CountryCheck'
-        );
 
-        if (!$countryCheck) {
-            return '';
+        $filter = '';
+
+        if (!$targetEntity->reflClass) {
+            return $filter;
         }
 
-        // FieldName parameter in annotation
-        $fieldName = $countryCheck->fieldName;
-
-        try {
-            // Parameter name given in the subscriber
-            $country = $this->getParameter('country');
-            $country = trim($country, "'");
-        } catch (InvalidArgumentException $e) {
-            // No treatment_site_id has been defined
-            return '';
-        }
-        if (empty($fieldName) || empty($country)) {
-            return '';
+        // Check if the entity implements the LocalAware interface
+        if (!$targetEntity->reflClass->implementsInterface(CountryAware::class)) {
+            return $filter;
         }
 
-        return sprintf('%s.%s = %s', $targetTableAlias, $fieldName, $country);
+        // Check if the current entity is marked with an annotation/attribute "CountryCheck"
+        $attributes = $targetEntity->reflClass->getAttributes(CountryCheck::class);
+        if (empty($attributes)) {
+            return $filter;
+        }
+
+        // Normally, we only have one attribute of this kind on an entity, but maybe we can have multiple ones....
+        // We will only process the first one
+        foreach ($attributes as $attribute) {
+            // Be sure we have the annotation on the entity
+            $attributeName = $attribute->getName();
+            if (!$this->supports($attributeName)) {
+                continue;
+            }
+
+            // Be sure the required annotation on the entity have the correct value (= the field on which we filter)
+            $arguments = $attribute->getArguments();
+            if (empty($arguments)) {
+                continue;
+            }
+            if (!\array_key_exists(CountryCheck::KEY, $arguments)) {
+                continue;
+            }
+
+            // Récupération de l'instance de attribut
+            $countryCheck = $attribute->newInstance();
+
+            // FieldName parameter in annotation
+            $fieldName = $countryCheck->fieldName;
+
+            $filter .= sprintf(' %s.%s = %s', $targetTableAlias, $fieldName, $this->getParameter('country'));
+        }
+
+        return $filter;
     }
 
-    /**
-     * @param Reader $reader
-     */
-    public function setAnnotationReader(Reader $reader)
+    private function supports(string $attributeName): bool
     {
-        $this->reader = $reader;
+        return CountryCheck::class === $attributeName;
     }
 }

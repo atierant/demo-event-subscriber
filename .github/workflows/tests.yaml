@@ -1,0 +1,117 @@
+name: "Tests"
+
+on:
+    pull_request:
+    push:
+        branches:
+            - main
+
+env:
+    fail-fast: true
+    PHPUNIT_FLAGS: "-v"
+    SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
+    SYMFONY_DEPRECATIONS_HELPER: 7
+
+permissions:
+    contents: write
+
+jobs:
+    test:
+        name: "${{ matrix.operating-system }} / PHP ${{ matrix.php-version }}"
+        runs-on: ${{ matrix.operating-system }}
+        continue-on-error: false
+        if: "!contains(github.event.head_commit.message, '[ci skip]')"
+
+        strategy:
+            matrix:
+                operating-system: ['ubuntu-latest']
+                php-version: ['8.1']
+#                include:
+#                    - operating-system: 'macos-latest'
+#                      php-version: '8.1'
+#                    - operating-system: 'windows-latest'
+#                      php-version: '8.1'
+
+        steps:
+            - name: "Checkout code"
+              uses: actions/checkout@v3
+
+            - name: 'Setup node 🔧'
+              uses: actions/setup-node@v3
+              with:
+                node-version: '16'
+                cache: 'npm'
+
+            - name: "Install PHP with extensions"
+              uses: shivammathur/setup-php@v2
+              with:
+                  #coverage: "none"
+                  extensions: "intl, mbstring, pdo_sqlite, simplexml, dom, xml, xdebug"
+                  php-version: ${{ matrix.php-version }}
+                  tools: composer:v2
+
+            - name: "Add PHPUnit matcher"
+              run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+            - name: "Set composer cache directory"
+              id: composer-cache
+              run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+              shell: bash
+
+            - name: "Cache composer"
+              uses: actions/cache@v3
+              with:
+                  path: ${{ steps.composer-cache.outputs.dir }}
+                  key: ${{ runner.os }}-${{ matrix.php-version }}-composer-${{ hashFiles('composer.json') }}
+                  restore-keys: ${{ runner.os }}-${{ matrix.php-version }}-composer-
+
+            - name: "Install dependencies"
+              run: composer install --no-interaction --no-progress
+
+            - name: 'Install npm dependencies 🔧'
+              run: npm install --color=always --no-progress --no-audit
+
+            - name: 'Warmup Front assets'
+              run: |
+                echo "::group::warmup production env"
+                  npx encore production --color
+                echo "::endgroup::"
+              env:
+                NODE_ENV: production
+                APP_ENV: prod
+                WEBPACK_PUBLIC_PATH: /${{ github.event.repository.name }}/build
+
+            - name: 'Warmup Symfony'
+              run: |
+                php bin/console cache:clear --ansi --no-warmup
+                php bin/console cache:warmup --ansi
+              env:
+                APP_ENV: test
+
+            - name: "Install PHPUnit"
+              run: php vendor/bin/simple-phpunit install
+
+            - name: "PHPUnit version"
+              run: php vendor/bin/simple-phpunit --version
+
+            - name: "Run tests"
+              run: php vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }}
+              env:
+                APP_ENV: test
+                XDEBUG_MODE_COVERAGE: coverage
+                PHPUNIT_FLAGS: '--coverage-text '
+
+            - name: "Make code coverage badge"
+              uses: timkrase/phpunit-coverage-badge@v1.2.1
+              with:
+                coverage_badge_path: output/coverage.svg
+                push_badge: false
+
+            - name: "Git push to image-data branch"
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                publish_dir: ./output
+                publish_branch: image-data
+                github_token: ${{ secrets.GITHUB_TOKEN }}
+                #user_name: 'github-actions[bot]'
+                #user_email: 'github-actions[bot]@users.noreply.github.com'
